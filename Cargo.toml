@@ -3,6 +3,7 @@ name = "gluster-xdr"
 version = "0.1.0"
 authors = ["Chris Holcombe <xfactor973@gmail.com>"]
 description = "Raw XDR RPC bindings to Gluster"
+license = "Apache-2.0/MIT"
 
 repository = "https://github.com/cholcombe973/gluster-xdr"
 
