@@ -2,6 +2,9 @@
 name = "gluster-xdr"
 version = "0.1.0"
 authors = ["Chris Holcombe <xfactor973@gmail.com>"]
+description = "Raw XDR RPC bindings to Gluster"
+
+repository = "https://github.com/cholcombe973/gluster-xdr"
 
 [dependencies]
-xdr-codec = "*"
+xdr-codec = "^0.2"

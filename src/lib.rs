@@ -12,8 +12,6 @@ pub const MAXNAMELEN: i64 = 1025i64;
 
 pub const MAXNETOBJ_SZ: i64 = 1024i64;
 
-pub const MNTUDPPATHLEN: i64 = 1024i64;
-
 pub const SM_MAXSTRLEN: i64 = 1024i64;
 
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
@@ -162,6 +160,13 @@ pub struct gd1_mgmt_friend_update_rsp {
     pub op: i32,
     pub op_ret: i32,
     pub op_errno: i32,
+}
+
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct gd1_mgmt_probe_req {
+    pub uuid: [u8; 16i64 as usize],
+    pub hostname: String,
+    pub port: i32,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone)]
@@ -1532,6 +1537,8 @@ pub struct nlm4_freeallargs {
     pub state: uint32_t,
 }
 
+pub struct nlm4_netobj(pub Vec<u8>);
+
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 pub struct nlm4_stat {
     pub stat: nlm4_stats,
@@ -1650,8 +1657,6 @@ pub struct sm_stat_res {
 pub type int32_t = i32;
 
 pub type int64_t = i64;
-
-pub type mntudpdirpath = String;
 
 pub type quad_t = i64;
 
@@ -1850,6 +1855,15 @@ impl <Out: xdr_codec::Write> xdr_codec::Pack<Out> for
                try!(self . op . pack ( out )) +
                try!(self . op_ret . pack ( out )) +
                try!(self . op_errno . pack ( out )) + 0)
+    }
+}
+
+impl <Out: xdr_codec::Write> xdr_codec::Pack<Out> for gd1_mgmt_probe_req {
+    fn pack(&self, out: &mut Out) -> xdr_codec::Result<usize> {
+        Ok(try!(xdr_codec :: pack_opaque_array (
+                & self . uuid [ .. ] , self . uuid . len (  ) , out )) +
+               try!(xdr_codec :: pack_string ( & self . hostname , None , out
+                    )) + try!(self . port . pack ( out )) + 0)
     }
 }
 
@@ -3523,6 +3537,13 @@ impl <Out: xdr_codec::Write> xdr_codec::Pack<Out> for nlm4_freeallargs {
     }
 }
 
+impl <Out: xdr_codec::Write> xdr_codec::Pack<Out> for nlm4_netobj {
+    fn pack(&self, out: &mut Out) -> xdr_codec::Result<usize> {
+        Ok(try!(xdr_codec :: pack_opaque_flex (
+                & self . 0 , Some ( MAXNETOBJ_SZ as usize ) , out )))
+    }
+}
+
 impl <Out: xdr_codec::Write> xdr_codec::Pack<Out> for nlm4_stat {
     fn pack(&self, out: &mut Out) -> xdr_codec::Result<usize> {
         Ok(try!(self . stat . pack ( out )) + 0)
@@ -4479,6 +4500,49 @@ impl <In: xdr_codec::Read> xdr_codec::Unpack<In> for
                                                sz += fsz;
                                                v
                                            },}, sz))
+    }
+}
+
+impl <In: xdr_codec::Read> xdr_codec::Unpack<In> for gd1_mgmt_probe_req {
+    fn unpack(input: &mut In)
+     -> xdr_codec::Result<(gd1_mgmt_probe_req, usize)> {
+        let mut sz = 0;
+        Ok((gd1_mgmt_probe_req{uuid:
+                                   {
+                                       let (v, fsz) =
+                                           {
+                                               use std::mem;
+                                               let mut buf:
+                                                       [u8; 16i64 as usize] =
+                                                   unsafe {
+                                                       mem::uninitialized()
+                                                   };
+                                               let sz =
+                                                   try!(xdr_codec ::
+                                                        unpack_opaque_array (
+                                                        input , & mut buf [ ..
+                                                        ] , 16i64 as usize ));
+                                               (buf, sz)
+                                           };
+                                       sz += fsz;
+                                       v
+                                   },
+                               hostname:
+                                   {
+                                       let (v, fsz) =
+                                           try!(xdr_codec :: unpack_string (
+                                                input , None ));
+                                       sz += fsz;
+                                       v
+                                   },
+                               port:
+                                   {
+                                       let (v, fsz) =
+                                           try!(xdr_codec :: Unpack :: unpack
+                                                ( input ));
+                                       sz += fsz;
+                                       v
+                                   },}, sz))
     }
 }
 
@@ -11828,6 +11892,19 @@ impl <In: xdr_codec::Read> xdr_codec::Unpack<In> for nlm4_freeallargs {
     }
 }
 
+impl <In: xdr_codec::Read> xdr_codec::Unpack<In> for nlm4_netobj {
+    fn unpack(input: &mut In) -> xdr_codec::Result<(nlm4_netobj, usize)> {
+        let mut sz = 0;
+        Ok(({
+                let (v, usz) =
+                    try!(xdr_codec :: unpack_opaque_flex (
+                         input , Some ( MAXNETOBJ_SZ as usize ) ));
+                sz = usz;
+                nlm4_netobj(v)
+            }, sz))
+    }
+}
+
 impl <In: xdr_codec::Read> xdr_codec::Unpack<In> for nlm4_stat {
     fn unpack(input: &mut In) -> xdr_codec::Result<(nlm4_stat, usize)> {
         let mut sz = 0;
@@ -12278,3 +12355,4 @@ impl <In: xdr_codec::Read> xdr_codec::Unpack<In> for sm_stat_res {
                             },}, sz))
     }
 }
+
