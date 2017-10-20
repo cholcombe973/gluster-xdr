@@ -1,5 +1,5 @@
 # gluster-xdr 
-[![Build Status](https://travis-ci.org/cholcombe973/gluster-xdr.svg?branch=master)](https://travis-ci.org/cholcombe973/gluster-xdr)
+[![Build Status](https://travis-ci.org/cholcombe973/gluster-xdr.svg?branch=master)](https://travis-ci.org/cholcombe973/gluster-xdr)[![Crates.io](https://img.shields.io/crates/v/gluster-xdr.svg)](https://crates.io/crates/gluster-xdr)[![Docs](https://docs.rs/gluster-xdr/badge.svg)](https://docs.rs/gluster-xdr)
 
 
 Pure Rust XDR bindings for Glusterfs
